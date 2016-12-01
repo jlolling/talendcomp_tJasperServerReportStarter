@@ -1,0 +1,114 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode  
+		org.talend.core.model.process.ElementParameterParser
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+	    java.util.List
+		java.util.Map
+	"
+%>
+
+<%
+	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+	INode node = (INode)codeGenArgument.getArgument();
+	String cid = node.getUniqueName();
+	String reportURI = ElementParameterParser.getValue(node, "__REPORT_URI__");
+	String outputFilename = ElementParameterParser.getValue(node, "__OUTPUT_FILENAME__");
+	String outputType = ElementParameterParser.getValue(node, "__OUTPUT_TYPE__");
+	String outputLocale = ElementParameterParser.getValue(node, "__OUTPUT_LOCALE__");
+	String overwriteFiles = ElementParameterParser.getValue(node, "__OVERWRITE_FILES__");
+	String sequentialFilenames = ElementParameterParser.getValue(node, "__SEQUENTIAL_FILENAMES__");
+	String timestampPattern = ElementParameterParser.getValue(node, "__TIMESTAMP_PATTERN__");
+	String outputDestURI = ElementParameterParser.getValue(node, "__OUTPUT_DEST_URI__");
+	String outputDescr = ElementParameterParser.getValue(node, "__OUTPUT_DESC__");
+	String mailNotification = ElementParameterParser.getValue(node, "__MAIL_NOTIFICATION__");
+	String mailAddresses = ElementParameterParser.getValue(node, "__MAIL_ADDRESSES__");
+	String mailSubject = ElementParameterParser.getValue(node, "__MAIL_SUBJECT__");
+	String mailMessage = ElementParameterParser.getValue(node, "__MAIL_MESSAGE__");
+	if (mailMessage != null) {
+		mailMessage = mailMessage.replaceAll("\r\n","\\\\n").replaceAll("\n","\\\\n");
+	}
+	String sendAttachment = ElementParameterParser.getValue(node, "__SEND_MAIL_ATTACHMENT__");
+	boolean skipNotificationIfEmpty = "true".equals(ElementParameterParser.getValue(node, "__MAIL_NOTIFICATION_SKIP_EMPTY__"));
+%>	
+	<%=cid%>.setJobLabel(jobName + "_" + new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date()));
+	{
+	String reportURI = <%=reportURI%>;
+	<%=cid%>.setReportURI(reportURI);
+	globalMap.put("<%=cid%>_REPORT_URI", reportURI); 
+	String outputFileName = <%=outputFilename%>;
+	<%=cid%>.setOutputFileName(outputFileName);
+<%  if (outputDescr != null && outputDescr.isEmpty() == false) { %>
+	<%=cid%>.setRepositoryDestOutputDesc(<%=outputDescr%>);
+<%  }%>
+	globalMap.put("<%=cid%>_OUTPUT_FILENAME", outputFileName);
+	<%=cid%>.setOutputFormat("<%=outputType%>");
+<%  if (outputLocale != null && outputLocale.trim().isEmpty() == false) { %>
+	<%=cid%>.setOutputLocale(<%=outputLocale%>);
+<%  } %>
+<%  if ("true".equals(overwriteFiles)) {%>
+		<%=cid%>.setOverwriteFiles(true);
+<%  } else {%>
+		<%=cid%>.setOverwriteFiles(false);
+<%  }%>
+<%  if ("true".equals(sequentialFilenames)) {%>
+		<%=cid%>.setSequentialFileNames(true);
+		<%=cid%>.setTimestampPattern(<%=timestampPattern%>);
+<%  } else {%>
+		<%=cid%>.setSequentialFileNames(false);
+<%  }%>
+    String outputDestURI = <%=outputDestURI%>;
+	<%=cid%>.setRepositoryDestURI(outputDestURI);
+	globalMap.put("<%=cid%>_DEST_URI", outputDestURI);
+	}
+<%  if ("true".equals(mailNotification)) {%>
+	    // without addresses mail notification is switched off
+		<%=cid%>.setMailAddresses(<%=mailAddresses%>);
+		<%=cid%>.setMailSkipIfReportIsEmpty(<%=skipNotificationIfEmpty%>);
+		<%=cid%>.setMailSubject(<%=mailSubject%>);
+<%		if (mailMessage != null && mailMessage.isEmpty() == false) {%>
+		<%=cid%>.setMailMessage(<%=mailMessage%>);
+<%      }%>
+<%  	if ("true".equals(sendAttachment)) {%>
+			<%=cid%>.setMailSendAttachments(true);
+<%  	} else {%>
+			<%=cid%>.setMailSendAttachments(false);
+<%  	}%>
+<%  } else {%>
+	    // without addresses mail notification is switched off
+		<%=cid%>.setMailAddresses(null);
+<%  }%>
+<%
+    List<Map<String, String>> paramDescList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__REPORT_PARAMS__");
+    String collectionDelimiter = ElementParameterParser.getValue(node, "__COLLECTION_DELIMITER__");
+    String pattern = ElementParameterParser.getValue(node, "__CONVERSION_PATTERN__");
+    if (pattern == null || pattern.isEmpty()) {
+    	pattern = "null";
+    }
+	for (Map<String, String> paramDesc : paramDescList) {
+		String conversionType = paramDesc.get("PARAM_TYPE");
+		String paramName = paramDesc.get("PARAM_NAME");
+		String paramValue = paramDesc.get("PARAM_VALUE");
+		if (paramValue == null || paramValue.isEmpty()) {
+			paramValue = "null";
+		}
+		String isCollection = paramDesc.get("PARAM_IS_COLLECTION");
+		if ("NoConversion".equals(conversionType)) {%>
+			<%=cid%>.setParameterValue(<%=paramName%>, <%=paramValue%>);			
+<%		} else {
+			if ("true".equals(isCollection)) {%>
+				<%=cid%>.setAndConvertParameterCollectionValues(<%=paramName%>, <%=paramValue%>, <%=collectionDelimiter%>, "<%=conversionType%>", <%=pattern%>);
+<%          } else {%>
+				<%=cid%>.setAndConvertParameterValue(<%=paramName%>, <%=paramValue%>, "<%=conversionType%>", <%=pattern%>);
+<%          }%>
+<%      }
+	}
+%>	
+    // schedule the above defined job
+	<%=cid%>.scheduleJob();
+	if (<%=cid%>.getLastException() != null) {
+	    globalMap.put("<%=cid%>" + "_ERROR_MESSAGE", <%=cid%>.getLastException().getMessage()); 
+		throw <%=cid%>.getLastException();
+	}
+	// put the jobId returned from JasperServer in the globalMap
+	globalMap.put("<%=cid%>" + "_JOB_ID", <%=cid%>.getJobId());

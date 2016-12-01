@@ -1,0 +1,25 @@
+<%@ jet
+	imports="
+		org.talend.core.model.process.INode
+		org.talend.core.model.process.ElementParameterParser
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+	"
+%>
+
+<%
+	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+	INode node = (INode) codeGenArgument.getArgument();
+	String cid = node.getUniqueName();
+	String serviceURL = ElementParameterParser.getValue(node, "__SERVICE_SCHEDULER_URL__");
+	String serviceUser = ElementParameterParser.getValue(node, "__SERVICE_USER__");
+	String servicePassword = ElementParameterParser.getValue(node, "__SERVICE_PASSWORD__");
+	String startDelay = ElementParameterParser.getValue(node, "__START_TIME_DELAY_IN_SECONDS__");
+%>
+    de.cimt.talendcomp.jasperscheduler.ReportStarter <%=cid%> = new de.cimt.talendcomp.jasperscheduler.ReportStarter();
+    <%=cid%>.setServiceUrl(<%=serviceURL%>);
+    <%=cid%>.setServiceUser(<%=serviceUser%>);
+    <%=cid%>.setServicePassword(<%=servicePassword%>);
+<% if (startDelay != null && startDelay.trim().isEmpty() == false) { %>
+    <%=cid%>.setStartNowDelay(<%=startDelay%>);
+<% } %>
+    <%=cid%>.setStartNow(true);

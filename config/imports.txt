@@ -1,0 +1,16 @@
+      <IMPORT NAME="cimtJasperTrigger" MODULE="jstrigger.jar" REQUIRED="true" />   
+      <IMPORT NAME="JasperServer" MODULE="com-jaspersoft-ireport-jasperserver.jar" REQUIRED="true" />   
+	  <IMPORT NAME="CommonsLogging" MODULE="commons-logging-1.1.jar" REQUIRED="true" />
+      <IMPORT NAME="JS_Activation" MODULE="js_activation-1.1.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_Axis" MODULE="js_axis-1.4patched.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_CommonsCodec" MODULE="js_commons-codec-1.3.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_CommonsDiscovery" MODULE="js_commons-discovery-0.2.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_CommonsHttpClient" MODULE="js_commons-httpclient-3.1.jar" REQUIRED="true" />
+	  <IMPORT NAME="JasperServerCommonWs" MODULE="js_jasperserver-common-ws-3.5.0.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_JaxRpc" MODULE="js_jaxrpc.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_Mail" MODULE="js_mail-1.4.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_SaajApi" MODULE="js_saaj-api-1.3.jar" REQUIRED="true" />
+	  <IMPORT NAME="JS_Wsdl4j" MODULE="js_wsdl4j-1.5.1.jar" REQUIRED="true" />
+	  <IMPORT NAME="Log4J" MODULE="log4j-1.2.15.jar" REQUIRED="true" />
+	  <IMPORT NAME="NetBeansIreportCore" MODULE="org-netbeans-core_ireport.jar" REQUIRED="true" />
+	  <IMPORT NAME="NetBeansiReportCoreWindows" MODULE="org-netbeans-core-windows_ireport.jar" REQUIRED="true" />

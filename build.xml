@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="JasperReportTrigger" default="comp" basedir=".">
+	
+	<property name="src" location="src/" />
+	<property name="bin" location="bin/" />
+	<property name="lib" location="lib/" />
+	<property name="distrib" location="distrib/" />
+	<property name="jarfilename" value="cimt-talendcomp-jasperservsched-2.2.jar" />
+	
+	<path id="project.class.path">
+		<fileset dir="${lib}" includes="**/*.jar" />
+	</path>
+	
+	<target name="clean" description="cleans the output folder">
+		<delete failonerror="false" includeemptydirs="true" dir="${bin}" />
+		<mkdir dir="${bin}" />
+		<delete failonerror="false" includeemptydirs="true" dir="${distrib}" />
+		<mkdir dir="${distrib}" />
+	</target>
+
+	<target name="compile" depends="clean" description="compile the source">
+		<javac 
+			classpathref="project.class.path"
+		    debug="true"
+		    deprecation="true"
+		    nowarn="false"
+		    srcdir="${src}"
+		    encoding="UTF-8"
+		    source="1.6"
+		    target="1.6"
+		    destdir="${bin}" />
+		<copy todir="${bin}">
+			<fileset dir="${src}">
+				<include name="**/*" />
+				<exclude name="**/*.java" />
+				<exclude name="**/*.psd" />
+				<exclude name="**/messages*.properties" />
+				<exclude name="CVS" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="jar"
+	        depends="compile"
+	        description="create the main jar">
+	    <mkdir dir="${distrib}"/>
+		<delete failonerror="false">
+			<fileset dir="${distrib}">
+				<include name="*.jar" />
+				<include name="*src.zip" />
+			</fileset>
+		</delete>
+		<jar jarfile="${distrib}/${jarfilename}" manifest="MANIFEST.MF">
+			<fileset dir="${bin}" includes="**/*.class" />
+			<zipgroupfileset dir="lib" includes="*.jar"/>			
+		</jar>
+	</target>
+	
+	<target name="distribute" depends="jar" description="build the ditribution">
+		<copy todir="${distrib}" flatten="true">
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="comp" depends="distribute" description="refresh component">
+		<delete failonerror="false">
+			<fileset dir="talend_component/tJasperServerReportStarter">
+				<include name="*.jar" />
+			</fileset>
+		</delete>
+		<copy todir="talend_component/tJasperServerReportStarter/" file="${distrib}/${jarfilename}" />
+	</target>
+</project>
